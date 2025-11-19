@@ -28,6 +28,8 @@ Aplikacja używa następujących domyślnych poświadczeń i nazwy pliku bazy da
 * --db-dir	Katalog, w którym zostanie utworzony nowy plik bazy danych (default_db.fdb).	Katalog zostanie utworzony, jeśli nie istnieje.
 * --scripts-dir	Katalog zawierający skrypty (pliki lub plik tekstowy) do wykonania. Są one wykonywane w porządku alfabetycznym nazw plików.
 
+---
+
 ## Instrukcja Uruchomienia
 
 * Ponieważ udostępniany jest kod źródłowy (.csproj), narzędzie należy uruchamiać za pomocą polecenia **`dotnet run`** z katalogu głównego projektu, w którym znajduje się plik **`DbMetaTool.csproj`**.
@@ -53,6 +55,7 @@ dotnet run -- export-scripts --connection-string "User=SYSDBA;Password=masterkey
 ```bash
 dotnet run -- update-db --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --scripts-dir "C:\scripts"
 ```
+---
 
 ## Obsługa Błędów
 * Jeśli skrypty w katalogu są puste aplikacja zgłosi błąd.
