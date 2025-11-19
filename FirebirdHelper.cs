@@ -5,9 +5,9 @@ namespace DbMetaTool;
 
 public static class FirebirdHelper
 {
-	private const string DefaultUser = "SYSDBA";
-	private const string DefaultPassword = "masterkey";
-	private const int DefaultPageSize = 8192;
+	public const string DefaultUser = "SYSDBA";
+	public const string DefaultPassword = "masterkey";
+	public const string DefaultDbFileName = "recruit_db.fdb";
 
 	public static void CreateDatabase(string databasePath)
 	{
@@ -19,7 +19,7 @@ public static class FirebirdHelper
 			File.Delete(databasePath);
 
 		string createDbConnectionString =
-			$"User={DefaultUser};Password={DefaultPassword};Database={databasePath};DataSource=localhost;PageSize={DefaultPageSize};";
+			$"User={DefaultUser};Password={DefaultPassword};Database={databasePath};DataSource=localhost;";
 
 		FbConnection.CreateDatabase(createDbConnectionString);
 	}
@@ -29,11 +29,19 @@ public static class FirebirdHelper
 		if (!Directory.Exists(scriptsDirectory))
 			throw new DirectoryNotFoundException($"Katalog skryptów nie istnieje: {scriptsDirectory}");
 
-		string[] scriptFiles = Directory.GetFiles(scriptsDirectory, "*.sql");
+		string[] scriptFiles = Directory.GetFiles(scriptsDirectory, "*.txt");
 		Array.Sort(scriptFiles);
+
+		if (scriptFiles.Length == 0)
+			throw new FileNotFoundException($"Brak plików .txt w katalogu: {scriptsDirectory}");
+
+		foreach (string file in scriptFiles)
+			if (new FileInfo(file).Length == 0)
+				throw new Exception($"Plik jest pusty: {file}");
 
 		using FbConnection dbConnection = new(connectionString);
 		dbConnection.Open();
+
 		foreach (string filePath in scriptFiles)
 		{
 			string fileName = Path.GetFileName(filePath);
@@ -62,8 +70,7 @@ public static class FirebirdHelper
 				transaction.Rollback();
 				Console.WriteLine("BŁĄD");
 				throw new Exception(
-					$"Wystąpił błąd SQL podczas wykonywania skryptu '{fileName}'. " +
-					$"Transakcja została wycofana. Szczegóły: {ex.Message}", ex);
+					$"Błąd SQL w '{fileName}'. Transakcja wycofana. Szczegóły: {ex.Message}", ex);
 			}
 		}
 	}
