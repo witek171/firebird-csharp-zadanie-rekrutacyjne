@@ -10,7 +10,7 @@
 
 * Środowisko uruchomieniowe **.NET 8**
 * Dostęp do serwera bazy danych **Firebird** (wersja 5 lub kompatybilna)
-* Używa biblioteki **FirebirdSql.Data.FirebirdClient**.
+* Wymaga biblioteki **FirebirdSql.Data.FirebirdClient**.
 
 ---
 
@@ -30,9 +30,9 @@ Aplikacja używa następujących domyślnych poświadczeń i nazwy pliku bazy da
 
 ## Instrukcja Uruchomienia
 
-Ponieważ udostępniany jest kod źródłowy (.csproj), narzędzie należy uruchamiać za pomocą polecenia **`dotnet run`** z katalogu głównego projektu, w którym znajduje się plik **`DbMetaTool.csproj`**.
+* Ponieważ udostępniany jest kod źródłowy (.csproj), narzędzie należy uruchamiać za pomocą polecenia **`dotnet run`** z katalogu głównego projektu, w którym znajduje się plik **`DbMetaTool.csproj`**.
 
-Poniżej znajdują się gotowe polecenia do wklejenia i użycia:
+* Poniżej znajdują się gotowe polecenia do wklejenia i użycia:
 
 1. Budowanie nowej bazy (build-db):
 
@@ -41,15 +41,15 @@ Poniżej znajdują się gotowe polecenia do wklejenia i użycia:
 
 2. Eksport metadanych DDL (export-scripts):
 
-```dotnet run -- export-scripts --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.fdb;DataSource=localhost;" --output-dir "C:\out"```
+```dotnet run -- export-scripts --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --output-dir "C:\out"```
 
 
 3. Aktualizacja istniejącej bazy (update-db):
 
-```dotnet run -- update-db --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.fdb;DataSource=localhost;" --scripts-dir "C:\scripts"```
+```dotnet run -- update-db --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --scripts-dir "C:\scripts"```
 
 ## Obsługa Błędów
-* Jeśli skrypty w katalogu są puste lub brakuje wymaganego parametru, aplikacja zgłosi błąd.
+* Jeśli skrypty w katalogu są puste aplikacja zgłosi błąd.
 
 * W przypadku błędu SQL podczas wykonywania skryptu, cała transakcja dla tego skryptu jest wycofywana (ROLLBACK), a aplikacja kończy działanie z błędem.
 
