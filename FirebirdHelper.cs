@@ -40,16 +40,30 @@ public static class FirebirdHelper
 			if (new FileInfo(file).Length == 0)
 				throw new Exception($"Plik jest pusty: {file}");
 
-		using FbConnection dbConnection = new(connectionString);
-		dbConnection.Open();
-
 		foreach (string filePath in scriptFiles)
 		{
 			string fileName = Path.GetFileName(filePath);
 			string sqlScript = File.ReadAllText(filePath);
 
-			string[] commands = Regex.Split(sqlScript, @"^\s*;\s*$",
-				RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+			string cleanedScript = System.Text.RegularExpressions.Regex.Replace(
+				sqlScript,
+				@"/\*.*?\*/",
+				"",
+				System.Text.RegularExpressions.RegexOptions.Singleline);
+
+			string[] rawCommands = cleanedScript.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+			List<string> commands = new();
+			foreach (string command in rawCommands)
+			{
+				string trimmedCommand = command.Trim();
+
+				if (!string.IsNullOrEmpty(trimmedCommand))
+					commands.Add(trimmedCommand);
+			}
+
+			using FbConnection dbConnection = new(connectionString);
+			dbConnection.Open();
 
 			using FbTransaction transaction = dbConnection.BeginTransaction();
 			try
