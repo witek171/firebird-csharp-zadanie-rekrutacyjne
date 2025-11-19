@@ -133,10 +133,18 @@ public static class Program
 	/// </summary>
 	public static void UpdateDatabase(string connectionString, string scriptsDirectory)
 	{
-		// TODO:
-		// 1) Połącz się z bazą danych przy użyciu connectionString.
-		// 2) Wykonaj skrypty z katalogu scriptsDirectory (tylko obsługiwane elementy).
-		// 3) Zadbaj o poprawną kolejność i bezpieczeństwo zmian.
-		throw new NotImplementedException();
+		try
+		{
+			FirebirdHelper.ExecuteScripts(connectionString, scriptsDirectory);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Wystąpił błąd podczas aktualizacji bazy danych.");
+			Console.WriteLine(ex is FbException fb
+				? $"Błąd SQL: {fb.Message} (SQLSTATE: {fb.SQLSTATE})"
+				: $"Błąd: {ex.Message}");
+
+			Environment.Exit(1);
+		}
 	}
 }

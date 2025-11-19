@@ -65,6 +65,7 @@ public static class FirebirdHelper
 				}
 
 				transaction.Commit();
+				Console.WriteLine($"  > Skrypt '{fileName}' wykonany pomyślnie.");
 			}
 			catch (FbException ex)
 			{
