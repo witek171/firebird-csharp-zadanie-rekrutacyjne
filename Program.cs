@@ -111,11 +111,21 @@ public static class Program
 	/// </summary>
 	public static void ExportScripts(string connectionString, string outputDirectory)
 	{
-		// TODO:
-		// 1) Połącz się z bazą danych przy użyciu connectionString.
-		// 2) Pobierz metadane domen, tabel (z kolumnami) i procedur.
-		// 3) Wygeneruj pliki .sql / .json / .txt w outputDirectory.
-		throw new NotImplementedException();
+		try
+		{
+			if (!Directory.Exists(outputDirectory))
+			{
+				Directory.CreateDirectory(outputDirectory);
+				Console.WriteLine($"Utworzono katalog wyjściowy: {outputDirectory}");
+			}
+
+			FirebirdHelper.ExportAllDdlUsingFbRestore(connectionString, outputDirectory);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Błąd: {ex.Message}");
+			Environment.Exit(1);
+		}
 	}
 
 	/// <summary>

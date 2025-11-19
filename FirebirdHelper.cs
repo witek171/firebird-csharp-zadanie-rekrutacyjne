@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using FirebirdSql.Data.FirebirdClient;
+using FirebirdSql.Data.Services;
 
 namespace DbMetaTool;
 
@@ -71,6 +72,109 @@ public static class FirebirdHelper
 				Console.WriteLine("BŁĄD");
 				throw new Exception(
 					$"Błąd SQL w '{fileName}'. Transakcja wycofana. Szczegóły: {ex.Message}", ex);
+			}
+		}
+	}
+
+	internal class DisposableServiceWrapper<T> : IDisposable where T : FbService
+	{
+		public T Service { get; }
+
+		public DisposableServiceWrapper(T service)
+		{
+			Service = service ?? throw new ArgumentNullException(nameof(service));
+		}
+
+		public void Dispose()
+		{
+			if (Service is IDisposable disposable)
+			{
+				disposable.Dispose();
+			}
+			else
+			{
+				try
+				{
+					((dynamic)Service).Close();
+				}
+				catch
+				{
+					/* Ignorowanie błędów */
+				}
+			}
+		}
+	}
+
+	public static void ExportAllDdlUsingFbRestore(string connectionString, string outputDirectory)
+	{
+		const string outputFileName = "01_FULL_DDL.txt";
+		string filePath = Path.Combine(outputDirectory, outputFileName);
+
+		var builder = new FbConnectionStringBuilder(connectionString);
+
+		string tempBackupFile = Path.Combine(Path.GetTempPath(),
+			Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + ".fbk");
+
+		DisposableServiceWrapper<FbBackup> backupWrapper = null;
+		DisposableServiceWrapper<FbRestore> restoreWrapper = null;
+
+		try
+		{
+			if (!Directory.Exists(outputDirectory))
+			{
+				Directory.CreateDirectory(outputDirectory);
+				Console.WriteLine($"Utworzono katalog wyjściowy: {outputDirectory}");
+			}
+
+			Console.WriteLine("  > Krok 1/2: Tworzenie tymczasowego backupu bazy...");
+
+			backupWrapper = new DisposableServiceWrapper<FbBackup>(new FbBackup(connectionString));
+
+			backupWrapper.Service.BackupFiles.Add(new FbBackupFile(tempBackupFile));
+			backupWrapper.Service.Execute();
+
+			Console.WriteLine("  > Krok 2/2: Przywracanie metadanych DDL do pliku TXT...");
+
+			string ddlConnectionString = new FbConnectionStringBuilder()
+			{
+				DataSource = builder.DataSource,
+				Database = filePath,
+				UserID = builder.UserID,
+				Password = builder.Password,
+			}.ToString();
+
+			restoreWrapper = new DisposableServiceWrapper<FbRestore>(new FbRestore(ddlConnectionString));
+
+			restoreWrapper.Service.BackupFiles.Add(new FbBackupFile(tempBackupFile));
+
+			restoreWrapper.Service.Options = FbRestoreFlags.MetaDataOnly;
+
+			restoreWrapper.Service.Verbose = true;
+
+			restoreWrapper.Service.Execute();
+
+			Console.WriteLine($"  > Eksport DDL pomyślnie zapisany do {outputFileName}");
+		}
+		catch (Exception ex)
+		{
+			throw new Exception(
+				$"Błąd eksportu przy użyciu FbRestore do pliku {Path.GetFileName(filePath)}: {ex.Message}", ex);
+		}
+		finally
+		{
+			backupWrapper?.Dispose();
+			restoreWrapper?.Dispose();
+
+			if (File.Exists(tempBackupFile))
+			{
+				try
+				{
+					File.Delete(tempBackupFile);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Ostrzeżenie: Nie udało się usunąć pliku tymczasowego: {ex.Message}");
+				}
 			}
 		}
 	}
