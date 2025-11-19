@@ -80,17 +80,12 @@ public static class Program
 	/// <summary>
 	/// Buduje nową bazę danych Firebird 5.0 na podstawie skryptów.
 	/// </summary>
-	private const string DefaultUser = "SYSDBA";
-
-	private const string DefaultPassword = "masterkey";
-	private const string DefaultDbFileName = "recruit_db.fdb";
-
 	public static void BuildDatabase(string databaseDirectory, string scriptsDirectory)
 	{
-		string databasePath = Path.Combine(databaseDirectory, DefaultDbFileName);
+		string databasePath = Path.Combine(databaseDirectory, FirebirdHelper.DefaultDbFileName);
 
 		string connectionString =
-			$"User={DefaultUser};Password={DefaultPassword};Database={databasePath};DataSource=localhost;";
+			$"User={FirebirdHelper.DefaultUser};Password={FirebirdHelper.DefaultPassword};Database={databasePath};DataSource=localhost;";
 
 		try
 		{
