@@ -36,17 +36,23 @@ Aplikacja używa następujących domyślnych poświadczeń i nazwy pliku bazy da
 
 1. Budowanie nowej bazy (build-db):
 
-```dotnet run -- build-db --db-dir "C:\db\fb5" --scripts-dir "C:\scripts"```
+```bash 
+dotnet run -- build-db --db-dir "C:\db\fb5" --scripts-dir "C:\scripts"
+```
 
 
 2. Eksport metadanych DDL (export-scripts):
 
-```dotnet run -- export-scripts --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --output-dir "C:\out"```
+```bash
+dotnet run -- export-scripts --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --output-dir "C:\out"
+```
 
 
 3. Aktualizacja istniejącej bazy (update-db):
 
-```dotnet run -- update-db --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --scripts-dir "C:\scripts"```
+```bash
+dotnet run -- update-db --connection-string "User=SYSDBA;Password=masterkey;Database=C:\db\fb5\default_db.FDB;DataSource=localhost;" --scripts-dir "C:\scripts"
+```
 
 ## Obsługa Błędów
 * Jeśli skrypty w katalogu są puste aplikacja zgłosi błąd.
